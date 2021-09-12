@@ -1,0 +1,42 @@
+//pereoposal
+policydetails=>{
+                                HealthPolicy.ProposalNo = proposalResponse.ProposalNumber;
+                                HealthPolicy.ProposalRequestXML = proposalResponse.Request;
+                                HealthPolicy.ProposalResponseXML = proposalResponse.ResponseData;
+                               	 HealthPolicy.PaymentRequestXML = "";
+                                HealthPolicy.PaymentResponseXML = "";
+                                HealthPolicy.Nomineeid = NomineeID;
+                                HealthPolicy.AddressId = AddressID;
+                                HealthPolicy.PlanName = model.HealthQuoteResponse.PlanName;
+                                HealthPolicy.Policy_Status = proposalResponse.PolicyStatus;
+                                HealthPolicy.Userid = User.UserID;
+                                HealthPolicy.TotalPremium = proposalResponse.TotalPremium;
+                                HealthPolicy.Service_tax = proposalResponse.ServiceTax > 0 ? proposalResponse.ServiceTax : Convert.ToDecimal(proposalResponse.TotalPremium * (18 / 100));
+                                    HealthPolicy.CoverAmount = model.HealthQuoteResponse.SumInsured;
+        }
+useraddress=>{
+                                AddressLine1 = model.UserAddress.AddressLine1,
+                                AddressLine2 = model.UserAddress.AddressLine2,
+                                AddressLine3 = model.UserAddress.AddressLine3,
+                                CityID = model.UserAddress.CityID != null ? model.UserAddress.CityID.Contains('~') ? model.UserAddress.CityID.Split('~')[0] : model.UserAddress.CityID : null,
+                                StateID = model.UserAddress.StateID != null ? model.UserAddress.StateID.Contains('~') ? model.UserAddress.StateID.Split('~')[0] : model.UserAddress.StateID : null,
+                                PinCode = Convert.ToString(model.UserAddress.PinCode),
+                                CityName = model.UserAddress.CityName,
+                                StateName = model.UserAddress.StateName,
+                                StateCode = model.UserAddress.StateCode != null ? model.UserAddress.StateCode.Contains('~') ? model.UserAddress.StateCode.Split('~')[0] : model.UserAddress.StateCode : null,
+}
+
+motornominee=>{
+    NomineeName = model.ListOfInsurer[0].NomineeName,
+                                NomineeRelationship = model.ListOfInsurer[0].NomineeRelationType,
+                                NomineeDob = model.ListOfInsurer[0].NomineeDob.Year > 1900 ? model.ListOfInsurer[0].NomineeDob : DateTime.Now.AddYears(-30)
+}
+        
+User.FirstName = ProfirstName;
+                            User.LastName = ProlastName;
+                            User.MaritalStatus = Convert.ToInt32(model.MarritalStatus == null ? "1" : model.MarritalStatus == "M" ? "1" : "0");
+                            User.DateOfBirth = model.ProposerDob.Year > 1900 ? model.ProposerDob : DateTime.Now.AddYears(-30);
+                            User.Email = model.ProposerEmail;
+                            User.Gender = Convert.ToInt32(model.ProposerGender == null ? "1" : model.ProposerGender == "M" ? "1" : "0");
+                            User.Mobile = Convert.ToString(model.MobileNumber);
+//proposal

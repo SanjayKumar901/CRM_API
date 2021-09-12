@@ -1,0 +1,17 @@
+UserName,Active,EmailAddress,MobileNo,Address,RoleId,AdhaarNumber,PANNumber,KeyAccountManager,BankAccountNo,IFSC_Code,PinCode,DOB,Gender,ReferPrifix,ReferVal,PosPrifix,PosVal ,RegionId, BranchID
+Test,Y,test@GMAIL.COM,9999999999,delhi,8,123456789111    ,**,Reportingmanager@gmail.com,0,0,110014,04-Dec-90,1,EMA,100001,POS,10001,0,0
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,
