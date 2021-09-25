@@ -1150,6 +1150,53 @@ namespace API.Model
         public string POSCode { get; set; }
         public string POSName { get; set; }
         public DateTime SignDate { get; set; }
+        public DateTime IIBDate { get; set; }
+    }
+    #endregion
+
+    #region Zoop 
+
+    /*
+     * By: Sunil
+     * Date:2021/09/19
+     */
+    public class ZoopModel
+    {
+        public string id { get; set; }
+        public string consent { get; set; }
+        public string consent_text { get; set; }
+        public string env { get; set; }
+        public string response_code { get; set; }
+        public string response_msg { get; set; }
+        public string transaction_status { get; set; }
+        public string request_timestamp { get; set; }
+        public string response_timestamp { get; set; }
+        public ZoopResult result { get; set; }
+    }
+    public class ZoopResult
+    {
+        public string blackList_status { get; set; }
+        public string chassis_no { get; set; }
+        public string engine_no { get; set; }
+        public string financier { get; set; }
+        public string fitness_upto { get; set; }
+        public string fuel { get; set; }
+        public string insurance_details { get; set; }
+        public string insurance_validity { get; set; }
+        public string license_address { get; set; }
+        public string maker { get; set; }
+        public string mv_tax_upto { get; set; }
+        public string owner_name { get; set; }
+        public string permit_type { get; set; }
+        public string permit_validity { get; set; }
+        public string pollution_norms { get; set; }
+        public string puc_no_upto { get; set; }
+        public string regist_no { get; set; }
+        public string registration_date { get; set; }
+        public string registration_no { get; set; }
+        public string report_id { get; set; }
+        public string status { get; set; }
+        public string vehicle_class { get; set; }
     }
     #endregion
 }

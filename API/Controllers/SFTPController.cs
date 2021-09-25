@@ -122,9 +122,26 @@ namespace API.Controllers
                 SignDate = param.SignDate,
                 StampID = param.StampID,
                 UserID = param.UserID,
-                POSCode = param.POSCode
+                POSCode = param.POSCode,
+                IIBDate = param.IIBDate
             });
             var Response = businessLayer.POSStampUpdate(stmpParam);
+            return Ok(Response);
+        }
+        #endregion
+        
+          #region Zoop 
+        [HttpPost]
+        public IActionResult ZoopSaveVehicle([FromBody] ZoopModel param)
+        {
+            var Response = businessLayer.ZoopSaveVehicle(param);
+            return Ok(Response);
+        }
+
+        [HttpGet]
+        public IActionResult ZoopGetVehicle(string regNumber)
+        {
+            var Response = businessLayer.ZoopGetVehicle(regNumber);
             return Ok(Response);
         }
         #endregion

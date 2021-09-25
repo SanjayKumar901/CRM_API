@@ -1141,6 +1141,17 @@ namespace API.BAL
                     //Common.mailMaster("",Item.EmailAddress,"Subject","Body","rblinsureadmin",)
                 }
                 */
+                try
+                {
+                    /*
+                     * Update userlist table for non-admin POS
+                     * By: Sunil
+                     * On: 22 Sep 2021
+                    */
+                    UpdateUserListAsync(model.UserID, model.ClientID.Value);
+                }
+                catch { }
+
             }
             return Response;
         }
@@ -2541,6 +2552,17 @@ namespace API.BAL
                             //Make Login History
                             LogintimeSave(UserData.UserID, UserData.ClientID.Value, LoginModel.DeviceName);
                             //ENd
+
+                            try
+                            {
+                                /*
+                                 * Update userlist table for non-admin POS
+                                 * By: Sunil
+                                 * On: 22 Sep 2021
+                                 */
+                                UpdateUserListAsync(UserData.UserID, UserData.ClientID.Value);
+                            }
+                            catch { }
                         }
                         else
                         {
@@ -2557,6 +2579,21 @@ namespace API.BAL
             }
             catch (Exception ex) { loginResponse.Status = ex.Message; model.status = ex.Message; }
             return loginResponse;
+        }
+
+        private void UpdateUserListAsync(int userID, int clientId)
+        {
+            try
+            {
+                Task.Run(() =>
+                {
+                    var data = DbHelper.ExecuteSQLQuery("call sp_NewUserlist('" + userID.ToString() + "','" + clientId.ToString() + "')");
+                }
+                );
+            }
+            catch (Exception ex)
+            {
+            }
         }
         private void LogintimeSave(int userID, int Clientid, string loginDevice = "")
         {
@@ -2674,6 +2711,16 @@ namespace API.BAL
                         loginResponse.Token = Authenticate(model);
                         loginResponse.UserName = model.UserName;
                         loginResponse.Status = model.status;
+                        try
+                        {
+                            /*
+                                 * Update userlist table for non-admin POS
+                                 * By: Sunil
+                                 * On: 22 Sep 2021
+                                 */
+                            UpdateUserListAsync(UserData.UserID, UserData.ClientID.Value);
+                        }
+                        catch { }
                     }
                     else
                     {
@@ -3299,7 +3346,7 @@ namespace API.BAL
                         {
                             value = String.Format("\"{0}\"", value);
                         }
-                        Table.Append(value.Replace("\n", "").Replace("\r", "") + ",");
+                        Table.Append(value.Replace("\n", "").Replace("\r", "").Replace(@"\", " ") + ",");
                     }
                     //Table.Append(dr[head] + ",");
                 }
@@ -3351,7 +3398,7 @@ namespace API.BAL
             string Path = "";
             if (ResponseProposal != null && ResponseProposal.path != null && ResponseProposal.path != "")
             {
-                Path= ResponseProposal.path;
+                Path = ResponseProposal.path;
                 if (ResponseProposal.insurer == "126" || ResponseProposal.insurer == "101")
                 {
                     ResponseProposal.policyno = ResponseProposal.policyno.Replace("/", "_");
@@ -5679,7 +5726,7 @@ namespace API.BAL
                     Response = data.CoreAPIURL + "/Downloads/ManualOffline/" + PolicyNo + ".pdf";
                 }
                 else
-                    Response = "File Not Found.";
+                    Response = "Path Not Found.";
             }
             return Response;
         }
@@ -6387,11 +6434,11 @@ namespace API.BAL
                         if (mail != null)
                         {
                             Parallel.ForEach(dataList, (data) =>
-                             {
-                                 Common.mailMaster(mail.FromEmail, data.Email.Trim(), "Renewal Notification", renewnotificationduration.RenewBody,
-                                     mail.FromEmail, mail.Password, mail.HostName, mail.Port, mail.UseDefaultCredential,
-                                     mail.EnableSsl, ref message);
-                             });
+                            {
+                                Common.mailMaster(mail.FromEmail, data.Email.Trim(), "Renewal Notification", renewnotificationduration.RenewBody,
+                                    mail.FromEmail, mail.Password, mail.HostName, mail.Port, mail.UseDefaultCredential,
+                                    mail.EnableSsl, ref message);
+                            });
                         }
                     }
                     else
@@ -6645,7 +6692,8 @@ namespace API.BAL
                 }
                 return GetTableData(Query);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return ex.Message;
             }
         }
@@ -7007,13 +7055,13 @@ namespace API.BAL
                                 SentToZoho = false,
                                 UserID = item.UserID,
                                 Entrydate = DateTime.Now,
-                                PosActiveDate=item.Timing
+                                PosActiveDate = item.Timing
                             });
                         }
                         else
                         {
                             posObj.POSCode = item.PosCode;
-                            posObj.POSName= item.UserName;
+                            posObj.POSName = item.UserName;
                             posObj.PosActiveDate = item.Timing;
                             posStmp.Update(posObj);
                         }
@@ -7037,27 +7085,28 @@ namespace API.BAL
                 dt.Columns.Add("PanNo");
                 dt.Columns.Add("AadharNo");
                 dt.Columns.Add("DateOfBirth");
+                dt.Columns.Add("IIBDate");
                 dt.Columns.Add("SignDate");
                 dt.Columns.Add("StampID");
 
                 var posListToEmail = posStmp.GetDetailsWithCondition(x => x.SentToZoho == false && String.IsNullOrEmpty(x.StampID));
-                
+
                 foreach (var item in posListToEmail)
                 {
                     var user = userMasters.GetSingelDetailWithCondition(x => x.UserID == item.UserID);
 
                     DataRow dr = dt.NewRow();
-                    dr["POSCode"] = String.IsNullOrEmpty(item.POSCode)?"--": item.POSCode;
-                    dr["POSName"] = String.IsNullOrEmpty(item.POSName)?"--": item.POSName;
-                    dr["POSActiveDate"] = item.PosActiveDate.HasValue ? item.PosActiveDate.Value.ToString("MM/dd/yyyy") : "--" ;
+                    dr["POSCode"] = String.IsNullOrEmpty(item.POSCode) ? "--" : item.POSCode;
+                    dr["POSName"] = String.IsNullOrEmpty(item.POSName) ? "--" : item.POSName;
+                    dr["POSActiveDate"] = item.PosActiveDate.HasValue ? item.PosActiveDate.Value.ToString("dd-MM-yyyy") : "--";
                     if (user != null)
                     {
-                        dr["Email"] = String.IsNullOrEmpty(user.EmailAddress)?"--": user.EmailAddress;
+                        dr["Email"] = String.IsNullOrEmpty(user.EmailAddress) ? "--" : user.EmailAddress;
                         dr["MobileNo"] = String.IsNullOrEmpty(user.MobileNo) ? "--" : user.MobileNo;
                         dr["Address"] = String.IsNullOrEmpty(user.Address) ? "--" : user.Address;
                         dr["PanNo"] = String.IsNullOrEmpty(user.PANNumber) ? "--" : user.PANNumber;
-                        dr["AadharNo"] = user.AdhaarNumber.HasValue? user.AdhaarNumber.ToString():"--" ;
-                        dr["DateOfBirth"] = user.DOB.HasValue? user.DOB.Value.ToString("MM/dd/yyyy") : "--";
+                        dr["AadharNo"] = user.AdhaarNumber.HasValue ? user.AdhaarNumber.ToString() : "--";
+                        dr["DateOfBirth"] = user.DOB.HasValue ? user.DOB.Value.ToString("dd-MM-yyyy") : "--";
                     }
                     dt.Rows.Add(dr);
                 }
@@ -7143,15 +7192,20 @@ namespace API.BAL
                     {
                         posObj.StampID = item.StampID;
                         posObj.SignDate = item.SignDate;
+                        posObj.IIBDate = item.IIBDate;
+                        posStmp.Update(posObj);
                     }
-                    posStmp.Update(posObj);
+                    else
+                    {
+                        sbErrors.Append(string.Format("Warning: POS code: {0} is not valid" + Environment.NewLine, item.POSCode));
+                    }
+
                 }
                 catch (Exception ex)
                 {
                     sbErrors.Append(string.Format("Error: POS code: {0} not updated" + Environment.NewLine, item.POSCode));
                 }
             }
-            sbErrors.Append("Done");
             return sbErrors.ToString();
         }
         public string POSZohoStatusUpdate(int UserId)
@@ -7163,7 +7217,6 @@ namespace API.BAL
                 if (posObj != null)
                 {
                     posObj.SentToZoho = true;
-
                     posStmp.Update(posObj);
                 }
             }
@@ -7172,6 +7225,162 @@ namespace API.BAL
                 return ex.Message;
             }
             return "Done";
+        }
+        #endregion
+
+        #region Zoop
+        /*
+         -By: Sunil
+         -Date: 17 Sep 2021
+         */
+        public ZoopModel ZoopGetVehicle(string regNumber)
+        {
+            if (string.IsNullOrEmpty(regNumber))
+            {
+                return null;
+            }
+            string reg = regNumber.Trim().Replace("-", "").ToUpper();
+            IDataLayer<ZoopVehicleRegistration> zoop = new DataLayer<ZoopVehicleRegistration>();
+            var zoopModel = zoop.GetSingelDetailWithCondition(x => string.Equals(x.registration_no.ToUpper(), reg));
+            if (zoopModel != null)
+            {
+                var vehicleResult = new ZoopResult
+                {
+                    blackList_status = zoopModel.blackList_status,
+                    chassis_no = zoopModel.chassis_no,
+                    engine_no = zoopModel.engine_no,
+                    financier = zoopModel.financier,
+                    fitness_upto = zoopModel.fitness_upto,
+                    fuel = zoopModel.fuel,
+                    insurance_details = zoopModel.insurance_details,
+                    insurance_validity = zoopModel.insurance_validity,
+                    license_address = zoopModel.license_address,
+                    maker = zoopModel.maker,
+                    mv_tax_upto = zoopModel.mv_tax_upto,
+                    owner_name = zoopModel.owner_name,
+                    permit_type = zoopModel.permit_type,
+                    permit_validity = zoopModel.permit_validity,
+                    pollution_norms = zoopModel.pollution_norms,
+                    puc_no_upto = zoopModel.puc_no_upto,
+                    registration_date = zoopModel.registration_date,
+                    registration_no = zoopModel.registration_no,
+                    regist_no = zoopModel.regist_no,
+                    report_id = zoopModel.report_id,
+                    status = zoopModel.status,
+                    vehicle_class = zoopModel.vehicle_class
+                };
+
+                var vehicle = new ZoopModel
+                {
+                    result = vehicleResult,
+                    request_timestamp = zoopModel.request_timestamp.ToString(),
+                    response_code = zoopModel.response_code,
+                    response_msg = zoopModel.response_msg,
+                    response_timestamp = zoopModel.response_timestamp.ToString(),
+                    transaction_status = zoopModel.transaction_status,
+                };
+                return vehicle;
+            }
+            return null;
+        }
+        public bool ZoopSaveVehicle(ZoopModel param)
+        {
+            bool status = false;
+            if (param == null)
+            {
+                return status;
+            }
+            if (param.response_msg != "Success")
+            {
+                return status;
+            }
+            DateTime dtReq = DateTime.Now;
+            DateTime dtRes = DateTime.Now;
+            if (param.request_timestamp.Length > 19)
+            {
+                param.request_timestamp = param.request_timestamp.Substring(0, 19);
+                DateTime.TryParse(param.request_timestamp, out dtReq);
+            }
+            if (param.response_timestamp.Length > 19)
+            {
+                param.response_timestamp = param.response_timestamp.Substring(0, 19);
+                DateTime.TryParse(param.request_timestamp, out dtRes);
+            }
+
+            string reg = param.result.registration_no.Trim().Replace("-", "").ToUpper();
+            IDataLayer<ZoopVehicleRegistration> zoopResponse = new DataLayer<ZoopVehicleRegistration>();
+            var vehicle = zoopResponse.GetSingelDetailWithCondition(x => string.Equals(x.registration_no.ToUpper(), reg));
+            if (vehicle == null)
+            {
+                var newVehicle = new ZoopVehicleRegistration
+                {
+                    blackList_status = param.result.blackList_status,
+                    chassis_no = param.result.chassis_no,
+                    engine_no = param.result.engine_no,
+                    financier = param.result.financier,
+                    fitness_upto = param.result.fitness_upto,
+                    fuel = param.result.fuel,
+                    insurance_details = param.result.insurance_details,
+                    insurance_validity = param.result.insurance_validity,
+                    license_address = param.result.license_address,
+                    maker = param.result.maker,
+                    mv_tax_upto = param.result.mv_tax_upto,
+                    owner_name = param.result.owner_name,
+                    permit_type = param.result.permit_type,
+                    permit_validity = param.result.permit_validity,
+                    pollution_norms = param.result.pollution_norms,
+                    puc_no_upto = param.result.puc_no_upto,
+                    registration_date = param.result.registration_date,
+                    registration_no = param.result.registration_no,
+                    regist_no = param.result.regist_no,
+                    report_id = param.result.report_id,
+                    request_timestamp = dtReq,
+                    response_code = param.response_code,
+                    response_id = param.result.report_id,
+                    response_msg = param.response_msg,
+                    response_timestamp = dtRes,
+                    status = param.result.status,
+                    transaction_status = param.transaction_status,
+                    vehicle_class = param.result.vehicle_class
+                };
+                var response = zoopResponse.InsertRecord(newVehicle);
+                status = response.Contains("Successfully") ? true : false;
+            }
+            else
+            {
+                vehicle.blackList_status = param.result.blackList_status;
+                vehicle.chassis_no = param.result.chassis_no;
+                vehicle.engine_no = param.result.engine_no;
+                vehicle.financier = param.result.financier;
+                vehicle.fitness_upto = param.result.fitness_upto;
+                vehicle.fuel = param.result.fuel;
+                vehicle.insurance_details = param.result.insurance_details;
+                vehicle.insurance_validity = param.result.insurance_validity;
+                vehicle.license_address = param.result.license_address;
+                vehicle.maker = param.result.maker;
+                vehicle.mv_tax_upto = param.result.mv_tax_upto;
+                vehicle.owner_name = param.result.owner_name;
+                vehicle.permit_type = param.result.permit_type;
+                vehicle.permit_validity = param.result.permit_validity;
+                vehicle.pollution_norms = param.result.pollution_norms;
+                vehicle.puc_no_upto = param.result.puc_no_upto;
+                vehicle.registration_date = param.result.registration_date;
+                vehicle.registration_no = param.result.registration_no;
+                vehicle.regist_no = param.result.regist_no;
+                vehicle.report_id = param.result.report_id;
+                vehicle.request_timestamp = dtReq;
+                vehicle.response_code = param.response_code;
+                vehicle.response_id = param.result.report_id;
+                vehicle.response_msg = param.response_msg;
+                vehicle.response_timestamp = dtRes;
+                vehicle.status = param.result.status;
+                vehicle.transaction_status = param.transaction_status;
+                vehicle.vehicle_class = param.result.vehicle_class;
+
+                var response = zoopResponse.Update(vehicle);
+                status = response.Contains("Successfully") ? true : false;
+            }
+            return status;
         }
         #endregion
     }

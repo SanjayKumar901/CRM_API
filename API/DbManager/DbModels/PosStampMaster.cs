@@ -16,6 +16,7 @@ namespace API.DbManager.DbModels
         public DateTime? PosActiveDate { get; set; }
         public bool? SentToZoho { get; set; }
         public DateTime? SignDate { get; set; }
+        public DateTime? IIBDate { get; set; }
         public DateTime Entrydate { get; set; }
     }
 }

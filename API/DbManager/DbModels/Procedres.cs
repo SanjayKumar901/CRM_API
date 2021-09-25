@@ -826,6 +826,8 @@ namespace API.DbManager.DbModels
         public string AadharNo { get; set; }
         public string StampID { get; set; }
         public DateTime? SignDate { get; set; }
+        public DateTime? DOB { get; set; }
+        public DateTime? IIBDate { get; set; }
     }
     #endregion
 }
