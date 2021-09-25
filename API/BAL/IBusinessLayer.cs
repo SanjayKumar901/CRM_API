@@ -309,5 +309,10 @@ namespace API.BAL
         string POSStampUpdate(POSUpload param);
         string POSZohoStatusUpdate(int UserId);
         #endregion
+
+        #region Zoop
+        ZoopModel ZoopGetVehicle(string regNumber);
+        bool ZoopSaveVehicle(ZoopModel param);
+        #endregion
     }
 }
